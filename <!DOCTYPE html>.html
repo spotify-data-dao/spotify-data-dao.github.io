@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNWRAPPED: Spotify Data DAO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj4KICA8ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+CiAgICA8ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC42NSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPgogIDwvZmlsdGVyPgogIDxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjA1Ii8+Cjwvc3ZnPg==');
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .container {
+            background-color: rgba(20, 20, 20, 0.8);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            margin: 20px 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header-button {
+            background-color: transparent;
+            border: 1px solid #4CAF50;
+            color: #e0e0e0;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .header-button:hover {
+            background-color: #4CAF50;
+            color: #000;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+
+        .main-screen {
+            background-color: rgba(30, 30, 30, 0.6);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            background-color: #4CAF50;
+            color: #000;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            text-shadow: 0 0 5px #4CAF50;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .vote-section {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #e0e0e0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .vote-button {
+            background-color: transparent;
+            border: 1px solid #4CAF50;
+            color: #e0e0e0;
+            margin: 0 10px;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .vote-button:hover {
+            background-color: #4CAF50;
+            color: #000;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+
+        h1, h2 {
+            text-shadow: 0 0 5px #4CAF50;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .popup-content {
+            background-color: rgba(20, 20, 20, 0.9);
+            margin: 15% auto;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            width: 70%;
+            max-width: 600px;
+            color: #e0e0e0;
+        }
+
+        .close {
+            color: #4CAF50;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #e0e0e0;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @media (max-height: 800px) {
+            body {
+                align-items: flex-start;
+            }
+        }
+
+        #inviteCodeInput {
+            background-color: rgba(30, 30, 30, 0.6);
+            border: 1px solid #4CAF50;
+            color: #e0e0e0;
+            padding: 5px 10px;
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #submitInviteCode {
+            background-color: #4CAF50;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #4CAF50;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-button" id="faqButton">FAQ</div>
+            <div class="header-button">ABOUT</div>
+            <div class="header-button" id="earlyAccessButton">EARLY ACCESS</div>
+        </div>
+        <div class="main-screen">
+            <div class="status-bar">
+                DATA PRE-MINE: COMING SOON | PROJECT LAUNCH: COMING SOON
+            </div>
+            <div class="content">
+                <h1>UNWRAPPED: Spotify Data DAO</h1>
+                <p>Transform your Spotify listening habits into currency.</p>
+                <h2>Redefine the Rules</h2>
+                <p>UNWRAPPED is your gateway to data democracy. Consumer insights data is incredible valuable, as it allows companies to predict the next fashion, music, and cultural trends. Join our DAO and have a voice in how your collective listening data is used and shared. It's time to make your music truly matter!</p>
+                <h2>How to Join</h2>
+                <ol>
+                    <li>Connect your Spotify account</li>
+                    <li>Agree to share your listening data</li>
+                    <li>Receive BOPS tokens based on your cultural prominence</li>
+                    <li>Start voting on data usage proposals</li>
+                </ol>
+            </div>
+        </div>
+        <div class="vote-section">
+            CHOOSE YOUR ACTION:
+            <div class="vote-button" id="faqButtonBottom">FAQ</div>
+            <div class="vote-button" id="earlyAccessButtonBottom">EARLY ACCESS</div>
+        </div>
+        <div class="footer">
+            <div>
+                Contract Address: <a href="https://etherscan.io/address/0x1234567890123456789012345678901234567890" target="_blank">0x1234567890123456789012345678901234567890</a>
+            </div>
+            <div>
+                Built on <a href="https://vana.org" target="_blank">Vana</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="faqPopup" class="popup">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2>Frequently Asked Questions</h2>
+            <h3>What is UNWRAPPED?</h3>
+            <p>UNWRAPPED is a Spotify Data DAO that allows users to monetize their listening habits and participate in data governance.</p>
+            <h3>How do I earn BOPS tokens?</h3>
+            <p>You earn BOPS tokens by connecting your Spotify account and sharing your listening data. The amount of tokens you receive is based on your cultural prominence.</p>
+            <h3>What can I do with BOPS tokens?</h3>
+            <p>BOPS tokens allow you to vote on data usage proposals and participate in the governance of the DAO.</p>
+            <h3>Is my data safe?</h3>
+            <p>We take data privacy seriously. Your data is anonymized and you have control over how it's used through the DAO voting system.</p>
+        </div>
+    </div>
+
+    <div id="earlyAccessPopup" class="popup">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2>Early Access</h2>
+            <p>To get early access, please enter your invite code:</p>
+            <input type="text" id="inviteCodeInput" placeholder="Enter your invite code">
+            <button id="submitInviteCode">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        var faqButton = document.getElementById("faqButton");
+        var faqButtonBottom = document.getElementById("faqButtonBottom");
+        var faqPopup = document.getElementById("faqPopup");
+        var earlyAccessButton = document.getElementById("earlyAccessButton");
+        var earlyAccessButtonBottom = document.getElementById("earlyAccessButtonBottom");
+        var earlyAccessPopup = document.getElementById("earlyAccessPopup");
+        var closeButtons = document.getElementsByClassName("close");
+
+        function showPopup(popup) {
+            popup.style.display = "block";
+        }
+
+        function hidePopup(popup) {
+            popup.style.display = "none";
+        }
+
+        faqButton.onclick = function() {
+            showPopup(faqPopup);
+        }
+
+        faqButtonBottom.onclick = function() {
+            showPopup(faqPopup);
+        }
+
+        earlyAccessButton.onclick = function() {
+            showPopup(earlyAccessPopup);
+        }
+
+        earlyAccessButtonBottom.onclick = function() {
+            showPopup(earlyAccessPopup);
+        }
+
+        for (var i = 0; i < closeButtons.length; i++) {
+            closeButtons[i].onclick = function() {
+                hidePopup(this.parentElement.parentElement);
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == faqPopup) {
+                hidePopup(faqPopup);
+            }
+            if (event.target == earlyAccessPopup) {
+                hidePopup(earlyAccessPopup);
+            }
+        }
+
+        document.getElementById("submitInviteCode").onclick = function() {
+            var inviteCode = document.getElementById("inviteCodeInput").value;
+            // Here you would typically send the invite code to your server for validation
+            alert("Invite code submitted: " + inviteCode);
+        }
+    </script>
+</body>
+</html>
